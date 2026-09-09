@@ -13,7 +13,8 @@ A fintech must decide whether to approve an applicant, request additional verifi
 - Deterministic synthetic data generator with `smoke` (1,000 applications) and `full` (50,000 applications) profiles.
 - Three countries and currencies, incomplete bureau data, alternative cash-flow signals, device events, and free-text employment statements.
 - Explicit `event_timestamp`, `available_at`, and `application_timestamp` fields.
-- Point-in-time feature builder that rejects data unavailable when the application was made.
+- Point-in-time feature builder that rejects events or records unavailable when the application was made.
+- Matured-label training dataset builder with an explicit `as_of_timestamp` cutoff.
 - Future repayment and fraud outcomes kept separate from decision-time features.
 
 ## Architecture
@@ -52,7 +53,7 @@ The generated data is synthetic and contains no personal or corporate data.
 
 ## Validation
 
-The test suite verifies deterministic generation, dataset cardinalities, smoke/full profile sizes, and the point-in-time availability rule. A feature with `available_at` after the application timestamp raises an error rather than leaking future information into a model.
+The test suite verifies deterministic generation, dataset cardinalities, smoke/full profile sizes, point-in-time availability, future-event leakage, outcome-column leakage, and label maturity. A feature with `available_at` after the application timestamp raises an error rather than leaking future information into a model. See the [data dictionary](docs/data_dictionary.md) for the contract.
 
 ## Roadmap
 

@@ -1,12 +1,10 @@
 # Thin-File Credit Decision Engine
 
-A reproducible Decision Science project that simulates credit decisions for applicants with limited traditional credit history. It is designed to show the full path from point-in-time data to an economically grounded policy decision.
-
-> **Status:** Milestone 1 — synthetic data and point-in-time foundations.
+A reproducible Decision Science system that simulates credit decisions for applicants with limited traditional credit history, from point-in-time data to an economically grounded policy decision.
 
 ## Business problem
 
-A fintech must decide whether to approve an applicant, request additional verification, and choose an initial loan amount without relying on a complete bureau score. The later milestones will compare policies on approval, fraud, repayment, customer friction, and expected value.
+A fintech must decide whether to approve an applicant, request additional verification, and choose an initial loan amount without relying on a complete bureau score. The system compares policies on approval, fraud, repayment, customer friction, and expected value.
 
 ## Current scope
 
@@ -61,10 +59,6 @@ The generated data is synthetic and contains no personal or corporate data.
 
 The test suite verifies deterministic generation, dataset cardinalities, smoke/full profile sizes, point-in-time availability, future-event leakage, outcome-column leakage, and label maturity. A feature with `available_at` after the application timestamp raises an error rather than leaking future information into a model. See the [data dictionary](docs/data_dictionary.md) for the contract.
 
-## Roadmap
-
-1. Publish `v1.0.0` after CI is green and attach a concise demo/case study.
-
 ## Limitations
 
-This first milestone generates realistic-looking fixtures for engineering and methodology tests; it does not claim real-world predictive performance, causal lift, or loan profitability. Those claims will only be made after the corresponding models, backtest, and experiment are implemented.
+The synthetic fixture supports engineering and methodology tests; it does not claim real-world predictive performance, causal lift, or loan profitability. The models, backtest, and experiment should be interpreted within those limits.

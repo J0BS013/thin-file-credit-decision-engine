@@ -21,6 +21,7 @@ A fintech must decide whether to approve an applicant, request additional verifi
 - XGBoost challenger with calibration isolated from the final out-of-time holdout.
 - Separate fraud and take-up models; take-up captures the predictive effect of offer friction.
 - Expected-value policy engine that chooses a loan amount and verification path, or declines.
+- Champion/challenger economic backtest and a randomized synthetic friction experiment.
 
 ## Architecture
 
@@ -62,8 +63,7 @@ The test suite verifies deterministic generation, dataset cardinalities, smoke/f
 
 ## Roadmap
 
-1. Champion/challenger economic backtest and first-loan sizing analysis.
-2. Randomized friction experiment, model card, decision memo, and MVP release.
+1. Publish `v1.0.0` after CI is green and attach a concise demo/case study.
 
 ## Limitations
 

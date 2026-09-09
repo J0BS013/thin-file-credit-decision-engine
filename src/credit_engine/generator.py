@@ -133,6 +133,23 @@ def generate_synthetic_data(profile: str = "smoke", seed: int = 20260909) -> dic
             "taken_up": rng.binomial(1, take_up_probability),
         }
     )
+    treatment = rng.binomial(1, 0.5, size=count)
+    experiment_assignments = pd.DataFrame(
+        {
+            "application_id": application_ids,
+            "experiment_name": "reduced_document_friction_v1",
+            "assignment": np.where(treatment == 1, "treatment", "control"),
+            "assigned_at": application_timestamp,
+        }
+    )
+    experiment_take_up_probability = np.clip(take_up_probability + treatment * 0.06, 0.05, 0.97)
+    experiment_outcomes = pd.DataFrame(
+        {
+            "application_id": application_ids,
+            "outcome_available_at": application_timestamp + pd.to_timedelta(7, unit="D"),
+            "completed_application": rng.binomial(1, experiment_take_up_probability),
+        }
+    )
     return {
         "applicants": applicants,
         "applications": applications,
@@ -143,6 +160,8 @@ def generate_synthetic_data(profile: str = "smoke", seed: int = 20260909) -> dic
         "loan_outcomes": loan_outcomes,
         "fraud_outcomes": fraud_outcomes,
         "take_up_outcomes": take_up_outcomes,
+        "experiment_assignments": experiment_assignments,
+        "experiment_outcomes": experiment_outcomes,
     }
 
 

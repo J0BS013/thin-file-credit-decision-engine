@@ -18,7 +18,13 @@ def build_decision_features(
     cashflow_transactions: pd.DataFrame,
 ) -> pd.DataFrame:
     """Aggregate only records available when each application was evaluated."""
-    application_columns = ["application_id", "applicant_id", "application_timestamp", "requested_amount"]
+    application_columns = [
+        "application_id",
+        "applicant_id",
+        "application_timestamp",
+        "requested_amount",
+        "country_code",
+    ]
     decisions = applications[application_columns].copy()
 
     bureau = bureau_snapshots.merge(

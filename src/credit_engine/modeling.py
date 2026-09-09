@@ -87,7 +87,13 @@ def evaluate_binary_model(model: Pipeline, validation_data: pd.DataFrame, target
     if validation_data[target].nunique() < 2:
         raise ValueError("Validation data must contain both outcome classes.")
     probabilities = model.predict_proba(validation_data[MODEL_FEATURES])[:, 1]
-    outcomes = validation_data[target]
+    return evaluate_probabilities(validation_data[target], probabilities)
+
+
+def evaluate_probabilities(outcomes: pd.Series, probabilities) -> dict[str, float]:
+    """Score a probability vector without assuming a particular model implementation."""
+    if outcomes.nunique() < 2:
+        raise ValueError("Validation data must contain both outcome classes.")
     return {
         "roc_auc": float(roc_auc_score(outcomes, probabilities)),
         "pr_auc": float(average_precision_score(outcomes, probabilities)),

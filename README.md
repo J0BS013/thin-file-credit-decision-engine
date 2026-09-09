@@ -18,6 +18,7 @@ A fintech must decide whether to approve an applicant, request additional verifi
 - Future repayment and fraud outcomes kept separate from decision-time features.
 - An interpretable `rules_v1` champion policy and approved-loan vintage reporting.
 - Logistic-regression scorecard baseline with held-out out-of-time evaluation.
+- XGBoost challenger with calibration isolated from the final out-of-time holdout.
 
 ## Architecture
 
@@ -59,10 +60,9 @@ The test suite verifies deterministic generation, dataset cardinalities, smoke/f
 
 ## Roadmap
 
-1. Gradient-boosting challenger and probability calibration.
-2. Separate fraud and take-up models.
-3. Expected-value policy engine, first-loan sizing, and champion/challenger backtest.
-4. Randomized friction experiment, model card, decision memo, and MVP release.
+1. Separate fraud and take-up models.
+2. Expected-value policy engine, first-loan sizing, and champion/challenger backtest.
+3. Randomized friction experiment, model card, decision memo, and MVP release.
 
 ## Limitations
 

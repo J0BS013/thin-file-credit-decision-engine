@@ -47,7 +47,7 @@ def assert_event_happened_before_decision(frame: pd.DataFrame) -> None:
 
 def assert_no_label_columns(frame: pd.DataFrame) -> None:
     """Keep future repayment and fraud outcomes out of decision-time features."""
-    forbidden = {"defaulted", "fraud_confirmed", "outcome_available_at"}.intersection(frame.columns)
+    forbidden = {"defaulted", "fraud_confirmed", "taken_up", "outcome_available_at"}.intersection(frame.columns)
     if forbidden:
         raise PointInTimeViolation(
             f"Decision-time feature data cannot contain outcome columns: {sorted(forbidden)}."

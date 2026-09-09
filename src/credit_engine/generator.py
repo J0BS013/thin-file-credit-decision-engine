@@ -54,6 +54,8 @@ def generate_synthetic_data(profile: str = "smoke", seed: int = 20260909) -> dic
             "application_timestamp": application_timestamp,
             "requested_amount": rng.choice([50, 100, 200, 300], size=count),
             "country_code": countries,
+            "document_requirement_count": rng.choice([1, 2, 3], size=count, p=[0.45, 0.4, 0.15]),
+            "decision_time_minutes": rng.integers(2, 181, size=count),
         }
     )
     bureau_scores = np.where(thin_file, np.nan, np.round(850 - latent_risk * 430 + rng.normal(0, 35, count), 0))
@@ -116,6 +118,21 @@ def generate_synthetic_data(profile: str = "smoke", seed: int = 20260909) -> dic
             "fraud_confirmed": rng.binomial(1, fraud_probability),
         }
     )
+    take_up_probability = np.clip(
+        0.92
+        - applications["document_requirement_count"].to_numpy() * 0.10
+        - (applications["decision_time_minutes"].to_numpy() > 60) * 0.08
+        - latent_risk * 0.12,
+        0.05,
+        0.95,
+    )
+    take_up_outcomes = pd.DataFrame(
+        {
+            "application_id": application_ids,
+            "outcome_available_at": application_timestamp + pd.to_timedelta(7, unit="D"),
+            "taken_up": rng.binomial(1, take_up_probability),
+        }
+    )
     return {
         "applicants": applicants,
         "applications": applications,
@@ -125,6 +142,7 @@ def generate_synthetic_data(profile: str = "smoke", seed: int = 20260909) -> dic
         "employment_statements": employment_statements,
         "loan_outcomes": loan_outcomes,
         "fraud_outcomes": fraud_outcomes,
+        "take_up_outcomes": take_up_outcomes,
     }
 
 

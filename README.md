@@ -15,10 +15,11 @@ A fintech must decide whether to approve an applicant, request additional verifi
 - Explicit `event_timestamp`, `available_at`, and `application_timestamp` fields.
 - Point-in-time feature builder that rejects events or records unavailable when the application was made.
 - Matured-label training dataset builder with an explicit `as_of_timestamp` cutoff.
-- Future repayment and fraud outcomes kept separate from decision-time features.
+- Future repayment, fraud, and take-up outcomes kept separate from decision-time features.
 - An interpretable `rules_v1` champion policy and approved-loan vintage reporting.
 - Logistic-regression scorecard baseline with held-out out-of-time evaluation.
 - XGBoost challenger with calibration isolated from the final out-of-time holdout.
+- Separate fraud and take-up models; take-up captures the predictive effect of offer friction.
 
 ## Architecture
 
@@ -60,9 +61,8 @@ The test suite verifies deterministic generation, dataset cardinalities, smoke/f
 
 ## Roadmap
 
-1. Separate fraud and take-up models.
-2. Expected-value policy engine, first-loan sizing, and champion/challenger backtest.
-3. Randomized friction experiment, model card, decision memo, and MVP release.
+1. Expected-value policy engine, first-loan sizing, and champion/challenger backtest.
+2. Randomized friction experiment, model card, decision memo, and MVP release.
 
 ## Limitations
 

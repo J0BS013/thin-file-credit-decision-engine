@@ -12,7 +12,7 @@
 
 ## Outcome-only sources
 
-`loan_outcomes` and `fraud_outcomes` are labels, not feature sources. They may join a training dataset only when both outcome timestamps are on or before a declared `as_of_timestamp`.
+`loan_outcomes`, `fraud_outcomes`, and `take_up_outcomes` are labels, not feature sources. They may join a training dataset only when their outcome timestamps are on or before a declared `as_of_timestamp`.
 
 ## Contract
 
@@ -23,4 +23,4 @@ event_timestamp <= application_timestamp
 available_at <= application_timestamp
 ```
 
-Features cannot contain `defaulted`, `fraud_confirmed`, or `outcome_available_at`. Violations raise `PointInTimeViolation` and fail the test suite.
+Features cannot contain `defaulted`, `fraud_confirmed`, `taken_up`, or `outcome_available_at`. Violations raise `PointInTimeViolation` and fail the test suite.

@@ -24,6 +24,8 @@ def build_decision_features(
         "application_timestamp",
         "requested_amount",
         "country_code",
+        "document_requirement_count",
+        "decision_time_minutes",
     ]
     decisions = applications[application_columns].copy()
 
@@ -80,3 +82,20 @@ def build_matured_training_dataset(
     if training.empty:
         raise PointInTimeViolation("No mature outcomes are available for the requested training cutoff.")
     return training
+
+
+def build_matured_take_up_dataset(
+    decision_features: pd.DataFrame, take_up_outcomes: pd.DataFrame, as_of_timestamp: str | pd.Timestamp
+) -> pd.DataFrame:
+    """Attach a take-up label only after its outcome window has matured."""
+    assert_no_label_columns(decision_features)
+    cutoff = pd.Timestamp(as_of_timestamp)
+    cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
+    mature = take_up_outcomes.loc[
+        pd.to_datetime(take_up_outcomes["outcome_available_at"], utc=True) <= cutoff,
+        ["application_id", "taken_up"],
+    ]
+    result = decision_features.merge(mature, on="application_id", how="inner")
+    if result.empty:
+        raise PointInTimeViolation("No mature take-up outcomes are available for the requested training cutoff.")
+    return result

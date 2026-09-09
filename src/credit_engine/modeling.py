@@ -77,7 +77,7 @@ def fit_logistic_scorecard(training_data: pd.DataFrame, target: str = "defaulted
     return Pipeline(
         steps=[
             ("preprocess", preprocessor),
-            ("model", LogisticRegression(max_iter=1_000, class_weight="balanced", random_state=42)),
+            ("model", LogisticRegression(max_iter=1_000, random_state=42)),
         ]
     ).fit(training_data[MODEL_FEATURES], training_data[target])
 

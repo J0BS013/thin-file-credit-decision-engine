@@ -17,6 +17,7 @@ A fintech must decide whether to approve an applicant, request additional verifi
 - Matured-label training dataset builder with an explicit `as_of_timestamp` cutoff.
 - Future repayment and fraud outcomes kept separate from decision-time features.
 - An interpretable `rules_v1` champion policy and approved-loan vintage reporting.
+- Logistic-regression scorecard baseline with held-out out-of-time evaluation.
 
 ## Architecture
 
@@ -58,11 +59,10 @@ The test suite verifies deterministic generation, dataset cardinalities, smoke/f
 
 ## Roadmap
 
-1. Interpretable scorecard and out-of-time validation.
-2. Gradient-boosting challenger and probability calibration.
-3. Separate fraud and take-up models.
-4. Expected-value policy engine, first-loan sizing, and champion/challenger backtest.
-5. Randomized friction experiment, model card, decision memo, and MVP release.
+1. Gradient-boosting challenger and probability calibration.
+2. Separate fraud and take-up models.
+3. Expected-value policy engine, first-loan sizing, and champion/challenger backtest.
+4. Randomized friction experiment, model card, decision memo, and MVP release.
 
 ## Limitations
 

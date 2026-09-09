@@ -1,8 +1,0 @@
-Metadata-Version: 2.4
-Name: thin-file-credit-decision-engine
-Version: 0.1.0
-Summary: Synthetic point-in-time fixtures for thin-file credit decisioning.
-Requires-Python: >=3.10
-Requires-Dist: numpy<3,>=1.26
-Requires-Dist: pandas<3,>=2.2
-Requires-Dist: pyarrow>=15

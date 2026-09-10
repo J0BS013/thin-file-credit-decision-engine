@@ -103,6 +103,22 @@ python -m credit_engine --run-mvp
 
 This writes `reports/generated/mvp_summary.json` with held-out default/fraud metrics, policy-backtest output, and friction-experiment results.
 
+## Interactive demo
+
+Run the local Streamlit demo after installing the requirements:
+
+```bash
+streamlit run app.py
+```
+
+The demo is organized into three views:
+
+- **Decision simulator:** compare all eight amount and verification scenarios for an approved or declined synthetic application, then inspect the selected action, expected value, probability estimates, and decision-time evidence.
+- **Portfolio economics:** compare the expected-value policy with the rule-based baseline on the same matured synthetic population.
+- **Validation and experiment:** review out-of-time model metrics and the randomized verification-friction experiment.
+
+The visuals make the distinction between prediction and decision explicit: default, fraud, and take-up probabilities are inputs to the economic policy, not approval thresholds by themselves. The demo uses only generated data and is not a real-credit decision interface.
+
 ## How to test
 
 ```bash

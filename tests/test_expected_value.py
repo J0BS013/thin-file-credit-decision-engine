@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from credit_engine.expected_value import calculate_expected_value, select_expected_value_policy
+from credit_engine.expected_value import calculate_expected_value, evaluate_expected_value_candidates, select_expected_value_policy
 from credit_engine.features import build_decision_features, build_matured_take_up_dataset, build_matured_training_dataset
 from credit_engine.generator import generate_synthetic_data
 from credit_engine.modeling import fit_logistic_scorecard, split_out_of_time
@@ -40,3 +40,12 @@ def test_policy_selects_exactly_one_safe_action_per_application() -> None:
     assert decisions["decision"].eq("approve").any()
     assert decisions.loc[decisions["decision"] == "approve", "expected_value"].gt(0).all()
     assert decisions.loc[decisions["decision"] == "decline", "approved_amount"].eq(0).all()
+
+
+def test_candidate_scenarios_cover_each_offer_and_verification_path() -> None:
+    features, default_model, fraud_model, take_up_model = _models_and_features()
+    candidates = evaluate_expected_value_candidates(features, default_model, fraud_model, take_up_model)
+    assert len(candidates) == len(features) * 8
+    assert candidates.groupby("application_id").size().eq(8).all()
+    assert set(candidates["approved_amount"]) == {50, 100, 200, 300}
+    assert set(candidates["requirements"]) == {"phone_verification", "document_verification"}

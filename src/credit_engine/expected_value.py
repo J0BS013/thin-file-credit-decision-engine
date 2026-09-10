@@ -53,6 +53,42 @@ def select_expected_value_policy(
     take_up_model: Pipeline,
 ) -> pd.DataFrame:
     """Choose the best candidate offer per application, or decline when all EV is non-positive."""
+    all_candidates = evaluate_expected_value_candidates(features, default_model, fraud_model, take_up_model)
+    best = all_candidates.loc[all_candidates.groupby("application_id")["expected_value"].idxmax()].copy()
+    best["policy_version"] = "expected_value_v1"
+    best["decision"] = np.where(best["expected_value"] > 0, "approve", "decline")
+    best.loc[best["decision"] == "decline", ["approved_amount", "requirements"]] = [0, "none"]
+    best["reason_code"] = np.where(
+        best["decision"] == "approve", "positive_expected_value", "non_positive_expected_value"
+    )
+    return best[
+        [
+            "application_id",
+            "policy_version",
+            "decision",
+            "approved_amount",
+            "requirements",
+            "pd",
+            "p_fraud",
+            "p_take_up",
+            "expected_value",
+            "reason_code",
+        ]
+    ].sort_values("application_id", ignore_index=True)
+
+
+def evaluate_expected_value_candidates(
+    features: pd.DataFrame,
+    default_model: Pipeline,
+    fraud_model: Pipeline,
+    take_up_model: Pipeline,
+) -> pd.DataFrame:
+    """Return every amount and verification scenario before the policy chooses one.
+
+    Keeping candidate scenarios available makes the economic trade-off auditable
+    in reporting and the interactive demo; the policy still selects only one
+    action per application.
+    """
     assert_no_label_columns(features)
     candidates: list[pd.DataFrame] = []
     base_pd = default_model.predict_proba(features[MODEL_FEATURES])[:, 1]
@@ -81,25 +117,6 @@ def select_expected_value_policy(
                     }
                 )
             )
-    all_candidates = pd.concat(candidates, ignore_index=True)
-    best = all_candidates.loc[all_candidates.groupby("application_id")["expected_value"].idxmax()].copy()
-    best["policy_version"] = "expected_value_v1"
-    best["decision"] = np.where(best["expected_value"] > 0, "approve", "decline")
-    best.loc[best["decision"] == "decline", ["approved_amount", "requirements"]] = [0, "none"]
-    best["reason_code"] = np.where(
-        best["decision"] == "approve", "positive_expected_value", "non_positive_expected_value"
+    return pd.concat(candidates, ignore_index=True).sort_values(
+        ["application_id", "approved_amount", "requirements"], ignore_index=True
     )
-    return best[
-        [
-            "application_id",
-            "policy_version",
-            "decision",
-            "approved_amount",
-            "requirements",
-            "pd",
-            "p_fraud",
-            "p_take_up",
-            "expected_value",
-            "reason_code",
-        ]
-    ].sort_values("application_id", ignore_index=True)

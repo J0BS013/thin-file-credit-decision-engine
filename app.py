@@ -103,17 +103,18 @@ with decision_view:
     scenario["result"] = scenario["expected_value"].map(lambda value: "positive" if value > 0 else "negative")
 
     st.subheader("Recommended policy action")
-    metric_one, metric_two, metric_three, metric_four = st.columns(4)
+    metric_one, metric_two, metric_three = st.columns(3)
     metric_one.metric("Decision", str(decision["decision"]).upper())
     metric_two.metric("Recommended amount", usd(float(decision["approved_amount"])))
     metric_three.metric("Expected value", usd(float(decision["expected_value"])))
-    metric_four.metric("Verification", str(decision["requirements"]).replace("_", " ").title())
 
-    risk_col, fraud_col, takeup_col, reason_col = st.columns(4)
+    risk_col, fraud_col, takeup_col = st.columns(3)
     risk_col.metric("Predicted default risk", percent(float(decision["pd"])))
     fraud_col.metric("Predicted fraud risk", percent(float(decision["p_fraud"])))
     takeup_col.metric("Predicted take-up", percent(float(decision["p_take_up"])))
-    reason_col.metric("Policy reason", str(decision["reason_code"]).replace("_", " "))
+    verification_col, reason_col = st.columns(2)
+    verification_col.info(f"**Verification:** {str(decision['requirements']).replace('_', ' ').title()}")
+    reason_col.info(f"**Policy reason:** {str(decision['reason_code']).replace('_', ' ')}")
 
     left, right = st.columns(2)
     with left:

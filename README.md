@@ -119,6 +119,12 @@ The demo is organized into three views:
 
 The visuals make the distinction between prediction and decision explicit: default, fraud, and take-up probabilities are inputs to the economic policy, not approval thresholds by themselves. The demo uses only generated data and is not a real-credit decision interface.
 
+![Credit decision simulator](docs/assets/credit-decision-simulator.png)
+
+### Deployment
+
+The application is compatible with Streamlit Community Cloud and similar Python hosting services. It uses `app.py` as the entry point, installs dependencies from `requirements.txt`, and generates its synthetic portfolio in memory at startup. No database, API key, or external dataset is required.
+
 ## How to test
 
 ```bash

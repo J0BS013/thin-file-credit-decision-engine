@@ -1,66 +1,119 @@
 # Thin-File Credit Decision Engine
 
-A reproducible Decision Science system that simulates credit decisions for applicants with limited traditional credit history, from point-in-time data to an economically grounded policy decision.
+An end-to-end Decision Science system for simulated applicants with limited traditional credit history. It generates synthetic credit data, enforces point-in-time feature availability, estimates default, fraud, and take-up probabilities, then selects an approval, loan amount, and verification path using expected value.
 
-## Business problem
+All data is synthetic. The project is for local experimentation, methodology review, and reproducible testing; it is not production lending software.
 
-A fintech must decide whether to approve an applicant, request additional verification, and choose an initial loan amount without relying on a complete bureau score. The system compares policies on approval, fraud, repayment, customer friction, and expected value.
+## What it does
 
-## Current scope
+For each application, the engine decides whether to approve or decline, evaluates initial amounts from US$50 to US$300, chooses phone or document verification, and returns predicted default, fraud, take-up, and expected-value fields.
 
-- Deterministic synthetic data generator with `smoke` (1,000 applications) and `full` (50,000 applications) profiles.
-- Three countries and currencies, incomplete bureau data, alternative cash-flow signals, device events, and free-text employment statements.
-- Explicit `event_timestamp`, `available_at`, and `application_timestamp` fields.
-- Point-in-time feature builder that rejects events or records unavailable when the application was made.
-- Matured-label training dataset builder with an explicit `as_of_timestamp` cutoff.
-- Future repayment, fraud, and take-up outcomes kept separate from decision-time features.
-- An interpretable `rules_v1` champion policy and approved-loan vintage reporting.
-- Logistic-regression scorecard baseline with held-out out-of-time evaluation.
-- XGBoost challenger with calibration isolated from the final out-of-time holdout.
-- Separate fraud and take-up models; take-up captures the predictive effect of offer friction.
-- Expected-value policy engine that chooses a loan amount and verification path, or declines.
-- Champion/challenger economic backtest and a randomized synthetic friction experiment.
+```yaml
+application_id: app_000123
+policy_version: expected_value_v1
+decision: approve
+approved_amount: 100
+requirements: phone_verification
+pd: 0.08
+p_fraud: 0.02
+p_take_up: 0.71
+expected_value: 4.12
+reason_code: positive_expected_value
+```
 
 ## Architecture
 
 ```text
-Synthetic source generator
-  -> applicants / applications / bureau / cash flow / device signals
-  -> point-in-time feature contract
-  -> eligible decision dataset
-  -> [next] risk, fraud and take-up models
-  -> [next] expected-value policy engine and backtest
+Synthetic data generator
+  -> Point-in-time feature contract
+  -> Default scorecard and XGBoost challenger
+  -> Separate fraud and take-up models
+  -> Expected-value policy engine
+  -> Champion/challenger backtest and friction experiment
+  -> JSON report
 ```
 
-## Data model and timing contract
+## Components
 
-| Dataset | Grain | Decision-time use |
-|---|---|---|
-| `applicants` | one row per applicant | identity and country context |
-| `applications` | one row per application | decision timestamp and requested amount |
-| `bureau_snapshots` | one snapshot per application | only if `available_at <= application_timestamp` |
-| `cashflow_transactions` | one transaction | only historical, available transactions |
-| `device_events` | one event | only historical, available events |
-| `employment_statements` | one statement per application | only if available at decision time |
-| `loan_outcomes` | one matured loan outcome | labels only; never a feature source |
-| `fraud_outcomes` | one matured fraud outcome | labels only; never a feature source |
+### Synthetic data
 
-## Quick start
+- `smoke`: 1,000 applications for local runs and CI.
+- `full`: 50,000 applications for larger local experiments.
+- Brazil, Mexico, and the Philippines; incomplete bureau data, cash flow, device signals, employment statements, and matured outcomes.
+
+### Point-in-time safety
+
+```text
+event_timestamp <= application_timestamp
+available_at <= application_timestamp
+```
+
+Default, fraud, and take-up outcomes are labels only. They cannot enter decision-time features and join training data only after their outcome window matures.
+
+### Models and policies
+
+- `rules_v1`: interpretable rule-based baseline.
+- Logistic scorecard: default baseline with out-of-time validation.
+- XGBoost challenger: calibrated before the final temporal holdout.
+- Separate fraud and take-up models.
+- `expected_value_v1`: selects the highest-value loan and verification scenario, or declines.
+
+## Project structure
+
+```text
+thin-file-credit-decision-engine/
+├── src/credit_engine/
+│   ├── generator.py        # Synthetic source tables
+│   ├── contracts.py        # Timing and label-leakage rules
+│   ├── features.py         # Decision-time and matured training datasets
+│   ├── modeling.py         # Logistic scorecard and temporal evaluation
+│   ├── challenger.py       # Calibrated XGBoost challenger
+│   ├── takeup.py           # Take-up model
+│   ├── expected_value.py   # Policy selection
+│   ├── backtest.py         # Economic policy comparison
+│   ├── experiments.py      # Randomized friction experiment helpers
+│   └── pipeline.py         # End-to-end smoke pipeline
+├── tests/
+├── docs/
+├── reports/generated/      # Ignored JSON reports
+└── .github/workflows/ci.yml
+```
+
+## Setup
 
 ```bash
+git clone https://github.com/J0BS013/thin-file-credit-decision-engine.git
+cd thin-file-credit-decision-engine
 python -m pip install -r requirements.txt
+```
+
+## How to run
+
+Generate source data only:
+
+```bash
 python -m credit_engine --profile smoke --output-dir data/generated/smoke
+```
+
+Run the complete smoke pipeline:
+
+```bash
 python -m credit_engine --run-mvp
+```
+
+This writes `reports/generated/mvp_summary.json` with held-out default/fraud metrics, policy-backtest output, and friction-experiment results.
+
+## How to test
+
+```bash
 python -m pytest -q
 ```
 
-The generated data is synthetic and contains no personal or corporate data.
-`--run-mvp` executes the smoke path end to end and writes `reports/generated/mvp_summary.json` with held-out metrics, policy-backtest output, and experiment results.
+The suite contains 22 automated tests covering generation, grain, leakage, label maturity, temporal validation, model outputs, policy selection, backtesting, experiments, and the end-to-end smoke path. GitHub Actions runs the same critical path on pushes and pull requests.
 
-## Validation
+## Assumptions and limitations
 
-The test suite verifies deterministic generation, dataset cardinalities, smoke/full profile sizes, point-in-time availability, future-event leakage, outcome-column leakage, and label maturity. A feature with `available_at` after the application timestamp raises an error rather than leaking future information into a model. See the [data dictionary](docs/data_dictionary.md) for the contract.
-
-## Limitations
-
-The synthetic fixture supports engineering and methodology tests; it does not claim real-world predictive performance, causal lift, or loan profitability. The models, backtest, and experiment should be interpreted within those limits.
+- Revenue, loss-given-default, funding, servicing, and verification costs are synthetic scenario parameters.
+- Take-up/friction relationships are predictive, not causal; reduced-friction decisions require randomized evidence.
+- The project does not claim real-world performance, fairness, regulatory suitability, or lending profitability.
+- See the [data dictionary](docs/data_dictionary.md), [model card](docs/model_card.md), [expected-value policy](docs/expected_value_policy.md), and [experiment analysis plan](docs/experiment_analysis_plan.md).

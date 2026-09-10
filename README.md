@@ -50,10 +50,12 @@ Synthetic source generator
 ```bash
 python -m pip install -r requirements.txt
 python -m credit_engine --profile smoke --output-dir data/generated/smoke
+python -m credit_engine --run-mvp
 python -m pytest -q
 ```
 
 The generated data is synthetic and contains no personal or corporate data.
+`--run-mvp` executes the smoke path end to end and writes `reports/generated/mvp_summary.json` with held-out metrics, policy-backtest output, and experiment results.
 
 ## Validation
 

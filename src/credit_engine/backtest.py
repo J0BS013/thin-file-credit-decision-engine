@@ -12,9 +12,8 @@ def compare_policies(training_data: pd.DataFrame, policies: dict[str, pd.DataFra
         merged = training_data.merge(decisions, on="application_id", validate="one_to_one")
         approved = merged.loc[merged["decision"] == "approve"].copy()
         amount = approved["approved_amount"].astype(float)
-        requirement_cost = approved["requirements"].map(
-            {"phone_verification": 2.0, "document_verification": 6.0}
-        ).fillna(0.0)
+        requirements = approved.get("requirements", pd.Series("none", index=approved.index))
+        requirement_cost = requirements.map({"phone_verification": 2.0, "document_verification": 6.0}).fillna(0.0)
         realized = (
             (1 - approved["fraud_confirmed"]) * ((1 - approved["defaulted"]) * amount * 0.18 - approved["defaulted"] * amount * 0.90)
             - approved["fraud_confirmed"] * amount

@@ -5,3 +5,4 @@ __pycache__/
 data/generated/
 *.parquet
 *.egg-info/
+reports/generated/

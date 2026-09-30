@@ -131,7 +131,7 @@ The application is compatible with Streamlit Community Cloud and similar Python 
 python -m pytest -q
 ```
 
-The suite contains 22 automated tests covering generation, grain, leakage, label maturity, temporal validation, model outputs, policy selection, backtesting, experiments, and the end-to-end smoke path. GitHub Actions runs the same critical path on pushes and pull requests.
+The suite contains 23 automated tests covering generation, grain, leakage, label maturity, temporal validation, model outputs, policy selection, backtesting, experiments, and the end-to-end smoke path. GitHub Actions runs the same critical path on pushes and pull requests.
 
 ## Assumptions and limitations
 

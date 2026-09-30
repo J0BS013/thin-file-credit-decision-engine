@@ -4,6 +4,8 @@ An end-to-end Decision Science system for simulated applicants with limited trad
 
 All data is synthetic. The project is for local experimentation, methodology review, and reproducible testing; it is not production lending software.
 
+**[Open the live demo →](https://thin-file-credit-decision.streamlit.app/)**
+
 ## What it does
 
 For each application, the engine decides whether to approve or decline, evaluates initial amounts from US$50 to US$300, chooses phone or document verification, and returns predicted default, fraud, take-up, and expected-value fields.

@@ -16,7 +16,7 @@ from credit_engine.policy import apply_rule_based_policy
 from credit_engine.takeup import fit_take_up_model
 
 
-COLORS = {"positive": "#24c78b", "negative": "#ff6b6b", "default": "#6ea8fe", "fraud": "#f6bd60", "take_up": "#b99cff"}
+COLORS = {"positive": "#0f8f68", "negative": "#d14343", "default": "#2563eb", "fraud": "#c47f00", "take_up": "#7c3aed"}
 
 
 @st.cache_resource(show_spinner="Running the synthetic decisioning pipeline...")
@@ -120,7 +120,7 @@ with decision_view:
     with left:
         st.subheader("Why this action wins")
         candidate_chart = px.bar(scenario, x="label", y="expected_value", color="result", color_discrete_map=COLORS, text=scenario["expected_value"].map(usd), labels={"label": "Offer and verification", "expected_value": "Expected value (USD)"})
-        candidate_chart.add_hline(y=0, line_color="#9aa0a6", line_width=1)
+        candidate_chart.add_hline(y=0, line_color="#64748b", line_width=1)
         candidate_chart.update_layout(showlegend=False, xaxis_tickangle=-28, margin=dict(t=25, b=80, l=5, r=5))
         st.plotly_chart(candidate_chart, width="stretch")
         st.caption("The policy evaluates all amount and verification combinations, then approves only the best positive-value scenario.")
@@ -142,8 +142,8 @@ with portfolio_view:
     st.subheader("Economic comparison on the same matured synthetic population")
     comparison = backtest.copy()
     comparison["policy_label"] = comparison["policy"].map({"rules_v1": "Rule-based baseline", "expected_value_v1": "Expected-value policy"})
-    economics_chart = px.bar(comparison, x="policy_label", y="observed_contribution_per_application", color="policy_label", color_discrete_sequence=["#ff8c69", "#24c78b"], text=comparison["observed_contribution_per_application"].map(usd), labels={"policy_label": "", "observed_contribution_per_application": "Observed contribution per eligible application (USD)"})
-    economics_chart.add_hline(y=0, line_color="#9aa0a6", line_width=1)
+    economics_chart = px.bar(comparison, x="policy_label", y="observed_contribution_per_application", color="policy_label", color_discrete_sequence=["#d14343", "#0f8f68"], text=comparison["observed_contribution_per_application"].map(usd), labels={"policy_label": "", "observed_contribution_per_application": "Observed contribution per eligible application (USD)"})
+    economics_chart.add_hline(y=0, line_color="#64748b", line_width=1)
     economics_chart.update_layout(showlegend=False, margin=dict(t=25, b=5, l=5, r=5))
     st.plotly_chart(economics_chart, width="stretch")
     display = comparison[["policy_label", "approved_applications", "approval_rate", "observed_default_rate", "observed_fraud_rate", "observed_contribution"]].copy()
@@ -163,7 +163,7 @@ with validation_view:
         st.caption("Models are evaluated separately on a later holdout period; probability quality is tracked with Brier score.")
     with right:
         st.subheader("Randomized friction experiment")
-        experiment_chart = px.bar(experiment, x="assignment", y="completion_rate", color="assignment", color_discrete_sequence=["#6ea8fe", "#24c78b"], text="completion_rate", labels={"assignment": "Experiment assignment", "completion_rate": "Completion rate"})
+        experiment_chart = px.bar(experiment, x="assignment", y="completion_rate", color="assignment", color_discrete_sequence=["#2563eb", "#0f8f68"], text="completion_rate", labels={"assignment": "Experiment assignment", "completion_rate": "Completion rate"})
         experiment_chart.update_traces(texttemplate="%{text:.1%}", textposition="outside")
         experiment_chart.update_layout(showlegend=False, yaxis_tickformat=".0%", yaxis_range=[0, 1], margin=dict(t=25, b=5, l=5, r=5))
         st.plotly_chart(experiment_chart, width="stretch")
